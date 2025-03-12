@@ -8,10 +8,10 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 embeddings = np.load("embeddings.npy")
 data = np.load("data.npy", allow_pickle=True)
 
-def get_recommendations(user_input, top_n=5):
+def get_recommendations(user_input, top_n=5, items_per_category=2):
     user_embedding = model.encode([user_input])
     similarities = np.dot(embeddings, user_embedding.T).flatten()
-    best_indices = similarities.argsort()[-top_n * 2:][::-1]  # Duplicamos el top_n y filtramos luego
+    best_indices = similarities.argsort()[-(top_n * 3):][::-1]  # Ampliamos la búsqueda
 
     categories = {
         "Ejercicios": [],
@@ -29,13 +29,13 @@ def get_recommendations(user_input, top_n=5):
             if category.lower() in item.lower():
                 categories[category].append(item)
 
-    # Seleccionar una recomendación de cada categoría (si hay disponibles)
+    # Seleccionar más elementos por categoría
     final_recommendations = []
     for recs in categories.values():
-        if recs:
-            final_recommendations.append(recs[0])
+        final_recommendations.extend(recs[:items_per_category])  # Tomar más de una
 
     return final_recommendations[:top_n]
+
 
 
 # Interfaz con Streamlit
