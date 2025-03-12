@@ -8,11 +8,35 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 embeddings = np.load("embeddings.npy")
 data = np.load("data.npy", allow_pickle=True)
 
-def obtener_recomendaciones(input_text, top_n=5):
-    input_embedding = model.encode([input_text])
-    similitudes = cosine_similarity(input_embedding, embeddings)[0]
-    indices_top = np.argsort(similitudes)[::-1][:top_n]
-    return [data[i] for i in indices_top]
+def get_recommendations(user_input, top_n=5):
+    user_embedding = model.encode([user_input])
+    similarities = np.dot(embeddings, user_embedding.T).flatten()
+    best_indices = similarities.argsort()[-top_n * 2:][::-1]  # Duplicamos el top_n y filtramos luego
+
+    categories = {
+        "Ejercicios": [],
+        "Alimentos": [],
+        "Suplementos": [],
+        "Hábitos saludables": [],
+        "Rutinas de entrenamiento": [],
+        "Técnicas de recuperación": [],
+        "Planes de alimentación": []
+    }
+
+    for idx in best_indices:
+        item = data[idx]
+        for category in categories.keys():
+            if category.lower() in item.lower():
+                categories[category].append(item)
+
+    # Seleccionar una recomendación de cada categoría (si hay disponibles)
+    final_recommendations = []
+    for recs in categories.values():
+        if recs:
+            final_recommendations.append(recs[0])
+
+    return final_recommendations[:top_n]
+
 
 # Interfaz con Streamlit
 st.title("Recomendador de Ejercicios y Alimentación")
