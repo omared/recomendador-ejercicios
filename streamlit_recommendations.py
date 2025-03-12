@@ -27,7 +27,7 @@ def filtrar_recomendaciones(data, objetivo, nivel, dieta):
     return recomendaciones[:5]  # Limitamos a 5 recomendaciones
 
 # Interfaz con Streamlit
-st.title("Recomendador de Ejercicios y Alimentación")
+st.title("Recomendadorxx de Ejercicios y Alimentación")
 
 # Filtros de usuario
 objetivo = st.selectbox("Selecciona tu objetivo", ["Ganar músculo", "Perder grasa", "Mantenerse"])
